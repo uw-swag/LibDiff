@@ -1,0 +1,32 @@
+package com.zchi88.android.libdiff.utilities;
+
+import java.io.File;
+import java.io.IOException;
+
+public class StartupScanner {
+	/**
+	 * Scans the whitelist of libraries to see if there are any diffs that need
+	 * to re-computed. This makes sure that the libraries and their diffs are
+	 * always in sync even if the tool crashes and must be restarted.
+	 * 
+	 * @throws IOException
+	 */
+	public static void scan(File[] whitelistedLibraries) throws IOException {
+		System.out.println();
+		System.out.println("==================================================");
+		System.out.println("Scanning for new libraries since last run...");
+
+		if (whitelistedLibraries.length > 0) {
+			for (File library : whitelistedLibraries) {
+				AarToJar.convertAarToJar(library);
+				JarDecompiler.decompileJars(library);
+				DiffComputer.checkDiff(library);
+			}
+			System.out.println("Startup scan complete.");
+		} else {
+			System.out.println("There were no libraries found at this directory.");
+		}
+		System.out.println("==================================================\n");
+	}
+
+}
