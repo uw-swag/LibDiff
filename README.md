@@ -1,5 +1,5 @@
 # LibDiff
-A tool for computing and maintaining version diffences(diffs) in Android libraries
+A tool for computing and maintaining version diffences(diffs) in Android libraries.
 
 
 
@@ -9,13 +9,13 @@ A tool for computing and maintaining version diffences(diffs) in Android librari
 
 
 ## Get the tool:
-Simply clone this repository to your local machine
+Simply clone this repository to your local machine.
 
 
 ## Try it out:
 The easiest way to use this tool is by creating a runnable Jar. To do so:
 
-1. Import this project into Eclipse
+1. Import this project into Eclipse:
 
 	```Eclipse
 	File > Import > General > Existing Projects into Workspace 
@@ -25,7 +25,7 @@ The easiest way to use this tool is by creating a runnable Jar. To do so:
 	Click "Finish" to import this project into Eclipse
 	```
 
-2. Create a runnable JAR file
+2. Create a runnable JAR file:
 
 	```Eclipse
 	File > Export > Java > Runnable JAR file
@@ -41,12 +41,12 @@ This Whitelist is a collection of library JAR's or AAR's that must be manually c
 When new libraries are added to the directory, the tool will try to compute diffs for the library based on earlier versions of it.
 The directory structure of this Libraries Whitelist directory MUST look like the following:
 
-![Whitelist Directory Structure]( "Whitelist Directory Structure")
+![Whitelist Directory Structure](https://github.com/zchi88/LibDiff/blob/master/LibDiff%20Structure.png?raw=true "Whitelist Directory Structure")
 
-To use the tool to maintain the diffs for the Libraries Whitelist, 
+To use the tool to maintain the diffs for the Libraries Whitelist:
 
 1. Open up a command line client
-2. Change directory to `...PATH/TO/LibDiffTool.jar`
+2. Change directory to `PATH/TO/LibDiffTool.jar`
 3. Run the tool by typing the following command
 
 	```console
