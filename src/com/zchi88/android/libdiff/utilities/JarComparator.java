@@ -55,27 +55,27 @@ public class JarComparator {
 	/**
 	 * 
 	 * @param aar
-	 *            - the aar file as a File object
+	 *            - the jar file as a File object
 	 * @return the time of the most recently modified file in the JAR, which
 	 *         will be the estimated release time of the entire JAR
 	 * @throws IOException
 	 */
-	public static long getReleaseTime(File aarPath) throws IOException {
+	public static long getReleaseTime(File jarPath) throws IOException {
 		// Open up the file as a JAR in order to explore its properties
-		JarFile aar = new JarFile(aarPath);
+		JarFile jar = new JarFile(jarPath);
 		long releaseTime = 0;
 		long tempTime;
-		Enumeration<JarEntry> filesInAar = aar.entries();
+		Enumeration<JarEntry> filesInJar = jar.entries();
 
 		// Find the most recently updated file, and store its time of
 		// modification in "releaseTime"
-		while (filesInAar.hasMoreElements()) {
-			tempTime = filesInAar.nextElement().getTime();
+		while (filesInJar.hasMoreElements()) {
+			tempTime = filesInJar.nextElement().getTime();
 			if (tempTime > releaseTime) {
 				releaseTime = tempTime;
 			}
 		}
-		aar.close();
+		jar.close();
 		return releaseTime;
 	}
 }
