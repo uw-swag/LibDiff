@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -17,9 +19,9 @@ public class AarToJar {
 	 * 
 	 * @throws IOException
 	 */
-	public static void convertAarToJar(File library) throws IOException {
-		File[] libraryVersions = library.listFiles();
-
+	public static void convertAarToJar(Path library) throws IOException {
+		File[] libraryVersions = library.toFile().listFiles();
+	
 		if (libraryVersions.length > 0) {
 			for (File libFile : libraryVersions) {
 				String nameOfLib = libFile.toString();

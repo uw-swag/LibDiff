@@ -2,6 +2,7 @@ package com.zchi88.android.libdiff.utilities;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.jar.JarEntry;
@@ -22,8 +23,8 @@ public class JarComparator {
 	 * @throws IOException
 	 *
 	 */
-	public static LinkedList<File> getVersionOrder(File library) throws IOException {
-		File[] libraryVersions = library.listFiles();
+	public static LinkedList<File> getVersionOrder(Path libraryPath) throws IOException {
+		File[] libraryVersions = libraryPath.toFile().listFiles();
 		LinkedList<File> sortedVersions = new LinkedList<File>();
 
 		// If the library is not empty

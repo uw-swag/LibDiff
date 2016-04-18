@@ -3,6 +3,8 @@ package com.zchi88.android.libdiff.utilities;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.strobel.decompiler.DecompilerDriver;
 
@@ -23,8 +25,8 @@ public class JarDecompiler {
 	 * @param outputPath
 	 *            - the directory where the decompiled contents will be placed
 	 */
-	public static void decompileJar(String jarPath, String outputPath) {
-		System.out.println(new File(jarPath).getName() + " has not been decompiled. Decompiling now...");
+	public static void decompileJar(Path jarPath, Path outputPath) {
+		System.out.println(jarPath + " has not been decompiled. Decompiling now...");
 		final PrintStream showStream = System.out;
 
 		final PrintStream hideStream = new PrintStream(new OutputStream() {
@@ -32,7 +34,7 @@ public class JarDecompiler {
 			public void write(int b) {
 			}
 		});
-		final String[] arg = { jarPath, "-o", outputPath };
+		final String[] arg = { jarPath.toString(), "-o", outputPath.toString() };
 
 		// The procyon decompiler prints superfluous decompiling information to
 		// the console which we don't care about. This hides it.
@@ -40,7 +42,7 @@ public class JarDecompiler {
 		DecompilerDriver.main(arg);
 		System.setOut(showStream);
 		hideStream.close();
-		System.out.println(new File(jarPath).getName() + " has been successfully decompiled.");
+		System.out.println(jarPath + " has been successfully decompiled.");
 	}
 
 	/**
@@ -48,12 +50,12 @@ public class JarDecompiler {
 	 * 
 	 * 
 	 */
-	public static void decompileJars(File library) {
+	public static void decompileAllJars(Path libraryPath) {
 		Boolean isDecompiled = true;
-		System.out.format("Checking to see if all libary JAR's for %s have been decompiled...\n", library);
+		System.out.format("Checking to see if all libary JAR's for %s have been decompiled...\n", libraryPath);
 
-		File[] libraryVersions = library.listFiles();
-
+		File[] libraryVersions = libraryPath.toFile().listFiles();
+		
 		if (libraryVersions.length > 0) {
 			for (File libFile : libraryVersions) {
 				String nameOfLib = libFile.toString();
@@ -70,7 +72,7 @@ public class JarDecompiler {
 						isDecompiled = false;
 						// Decompile the JAR and create this directory if it
 						// does not exist
-						JarDecompiler.decompileJar(nameOfLib, decompiledFolder);
+						JarDecompiler.decompileJar(libFile.toPath(), decompiledFolderPath.toPath());
 					}
 				}
 			}

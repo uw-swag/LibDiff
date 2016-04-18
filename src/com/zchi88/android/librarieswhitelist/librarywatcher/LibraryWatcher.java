@@ -43,6 +43,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
@@ -236,9 +237,9 @@ public class LibraryWatcher {
 		}
 
 		String decompiledFolder = filePath.toString().replace(".jar", "");
-		JarDecompiler.decompileJar(filePath.toString(), decompiledFolder);
+		JarDecompiler.decompileJar(filePath, Paths.get(decompiledFolder));
 		try {
-			DiffComputer.findMissingDiffs(new File(filePath.getParent().toString()));
+			DiffComputer.findMissingDiffs(filePath.getParent());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

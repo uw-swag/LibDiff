@@ -2,6 +2,8 @@ package com.zchi88.android.libdiff.utilities;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class StartupScanner {
 	/**
@@ -18,9 +20,10 @@ public class StartupScanner {
 
 		if (whitelistedLibraries.length > 0) {
 			for (File library : whitelistedLibraries) {
-				AarToJar.convertAarToJar(library);
-				JarDecompiler.decompileJars(library);
-				DiffComputer.checkDiff(library);
+				Path pathToLibrary = library.toPath();
+				AarToJar.convertAarToJar(pathToLibrary);
+				JarDecompiler.decompileAllJars(pathToLibrary);
+				DiffComputer.checkDiff(pathToLibrary);
 			}
 			System.out.println("Startup scan complete.");
 		} else {

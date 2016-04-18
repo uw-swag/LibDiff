@@ -10,7 +10,7 @@ import com.zchi88.android.librarieswhitelist.librarywatcher.LibraryWatcher;
 
 /**
  * The main class for the Android Library Diff tool. This tool takes a whitelist
- * of android libraries and calculates the changes between consecutive versions
+ * of android libraries and calculates the changes between consecutive versions 
  * of a library, logging them in a diff.txt file.
  * 
  * @author Zhihao Chi
