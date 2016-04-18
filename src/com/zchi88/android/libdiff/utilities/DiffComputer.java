@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -29,13 +30,13 @@ public class DiffComputer {
 	 * 
 	 * @throws IOException
 	 */
-	public static void checkDiff(File library) throws IOException {
-		System.out.format("Checking to see if diffs have been computed for all versions of %s...\n", library.getName());
+	public static void checkDiff(Path libraryPath) throws IOException {
+		System.out.format("Checking to see if diffs have been computed for all versions of %s...\n", libraryPath);
 
-		File[] libraryVersions = library.listFiles();
+		File[] libraryVersions = libraryPath.toFile().listFiles();
 
 		if (libraryVersions.length > 0) {
-			LinkedList<File> versionOrder = JarComparator.getVersionOrder(library);
+			LinkedList<File> versionOrder = JarComparator.getVersionOrder(libraryPath);
 			// If a diff exists for the very first version of a library, delete
 			// it.
 
@@ -57,9 +58,9 @@ public class DiffComputer {
 				}
 
 				if (diffCount < libCount && diffCount != (libCount - 1)) {
-					findMissingDiffs(library);
+					findMissingDiffs(libraryPath);
 				} else {
-					System.out.println("Diffs for " + library.getName() + " are up to date.\n");
+					System.out.println("Diffs for " + libraryPath + " are up to date.\n");
 				}
 			}
 
@@ -74,10 +75,10 @@ public class DiffComputer {
 	 *            - list of all the files in a given library
 	 * @throws IOException
 	 */
-	public static void findMissingDiffs(File library) throws IOException {
-		System.out.format("Diffs for %s appear to be out of date. Recomputing diffs...\n", library);
+	public static void findMissingDiffs(Path libraryPath) throws IOException {
+		System.out.format("Diffs for %s appear to be out of date. Recomputing diffs...\n", libraryPath);
 
-		LinkedList<File> versionOrder = JarComparator.getVersionOrder(library);
+		LinkedList<File> versionOrder = JarComparator.getVersionOrder(libraryPath);
 		Boolean recomputeDiff = false;// Tracks if previously existing diff
 										// should be re-created since a new
 										// version is inserted
@@ -106,7 +107,7 @@ public class DiffComputer {
 			}
 		}
 
-		System.out.format("Diffs for %s are now up to date.\n\n", library);
+		System.out.format("Diffs for %s are now up to date.\n\n", libraryPath);
 	}
 
 	/**
@@ -135,7 +136,7 @@ public class DiffComputer {
 
 		// Map all the files in the target directory to its checksum
 		for (File file : targetFileList) {
-			String checksum = hashFile(file, "MD5");
+			String checksum = FileHasher.hashFile(file, "MD5");
 			targetFilesMap.put(file, checksum);
 		}
 
@@ -152,7 +153,7 @@ public class DiffComputer {
 			if (targetChecksum == null) {
 				deletedFiles.add(compFile.toString());
 			} else {
-				String prevChecksum = hashFile(file, "MD5");
+				String prevChecksum = FileHasher.hashFile(file, "MD5");
 				// If the checksum exists and is different, then the files have
 				// been modified
 				if (!targetChecksum.equals(prevChecksum)) {
@@ -222,32 +223,5 @@ public class DiffComputer {
 			}
 		}
 		return allFiles;
-	}
-
-	private static String hashFile(File file, String algorithm) {
-		try (FileInputStream inputStream = new FileInputStream(file)) {
-			MessageDigest digest = MessageDigest.getInstance(algorithm);
-
-			byte[] bytesBuffer = new byte[1024];
-			int bytesRead = -1;
-
-			while ((bytesRead = inputStream.read(bytesBuffer)) != -1) {
-				digest.update(bytesBuffer, 0, bytesRead);
-			}
-
-			byte[] hashedBytes = digest.digest();
-
-			return convertByteArrayToHexString(hashedBytes);
-		} catch (Exception ex) {
-			return "";
-		}
-	}
-
-	private static String convertByteArrayToHexString(byte[] arrayBytes) {
-		StringBuffer stringBuffer = new StringBuffer();
-		for (int i = 0; i < arrayBytes.length; i++) {
-			stringBuffer.append(Integer.toString((arrayBytes[i] & 0xff) + 0x100, 16).substring(1));
-		}
-		return stringBuffer.toString();
 	}
 }
