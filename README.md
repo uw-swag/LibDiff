@@ -1,5 +1,5 @@
 # LibDiff
-A tool for computing and maintaining version diffences(diffs) in Android libraries.
+A tool for computing and maintaining version diffences(diffs) in Android libraries. The diff is a version-specific "signature" which describes the files that are unique(either new or modified) to the version of a library.
 
 
 
@@ -38,7 +38,7 @@ The easiest way to use this tool is by creating a runnable Jar. To do so:
 ## USAGE
 This tool works on a directory which is a collection of libraries - the "Libraries Whitelist". 
 This Whitelist is a collection of library JAR's or AAR's that must be manually collected and copied to the directory.
-When new libraries are added to the directory, the tool will try to compute diffs for the library based on earlier versions of it.
+When new libraries are added to the directory, the tool will try to compute diffs for the library based on all other versions of it.
 The directory structure of this Libraries Whitelist directory MUST look like the following:
 
 ![Whitelist Directory Structure](https://github.com/zchi88/LibDiff/blob/master/LibDiff%20Structure.png?raw=true "Whitelist Directory Structure")
@@ -57,6 +57,8 @@ To use the tool to maintain the diffs for the Libraries Whitelist:
 have already been computed. Afterwards, it will continue to run and look for new libraries being added to the whitelist.
 
 ### NOTES
-Every version for a library will have a ```diff.txt``` file create for it to log the files in the version of the library that are new, added, and deleted.
-The exception to this is the very first version of the library in the whitelist, since there is no previous version to compare to. The ```diff.txt``` file 
-for any JAR can be found in a directory named after its JAR. This directory exists in the same location as the JAR file.
+The ```diff.txt``` file for any JAR can be found in the directory where the JAR is decompiled to, named after the JAR. This directory exists in the same location as the JAR file.
+
+For example, if we have a library ```"Library1"``` at ```PATH/TO/WHITELIST_LIBRARIES/Library1```, version1.jar of this library will decompile to ``PATH/TO/WHITELIST_LIBRARIES/Library1/version1```, and the diff file for this version will be created at ```PATH/TO/WHITELIST_LIBRARIES/Library1/version1/diff.txt```. This is illustrated in the diagram below:
+
+![Decompiled Resources Structure](https://raw.githubusercontent.com/zchi88/LibDiff/master/Decompiled%20Resources%20Structure.png "Decompiled Resources Structure")
