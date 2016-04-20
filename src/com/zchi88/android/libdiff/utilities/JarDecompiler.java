@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.benf.cfr.reader.Main;
 
