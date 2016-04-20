@@ -5,7 +5,7 @@ A tool for computing and maintaining version diffences(diffs) in Android librari
 
 ## DEPENDENCIES
 - Java 1.7+
-- Procyon Decompiler version 0.5.30 
+- CFR_0_115 (another java decompiler)
 
 
 ## GET THE TOOL
