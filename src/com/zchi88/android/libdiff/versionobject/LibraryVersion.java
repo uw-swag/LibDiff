@@ -27,6 +27,7 @@ public class LibraryVersion {
 		this.filesList = FileMapper.getFileList(versionPath);
 		this.exclusiveFiles = new ArrayList<File>();
 		this.moddedFiles = new ArrayList<File>();
+		this.copiedFiles = new ArrayList<File>();
 
 		this.filesMap = new HashMap<File, String>();
 		this.filesList = new ArrayList<File>();
@@ -66,6 +67,9 @@ public class LibraryVersion {
 	// A list of files in that version that exist in other versions, but with
 	// different content
 	private final ArrayList<File> moddedFiles;
+	
+	// A list of files in that version that are found as a direct copy in other versions
+	private final ArrayList<File> copiedFiles;
 
 	public Path getVersionName() {
 		return versionName;
@@ -89,5 +93,9 @@ public class LibraryVersion {
 
 	public ArrayList<File> getModdedFiles() {
 		return moddedFiles;
+	}
+	
+	public ArrayList<File> getCopiedFiles() {
+		return copiedFiles;
 	}
 }

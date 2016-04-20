@@ -99,6 +99,7 @@ public class DiffComputer {
 				HashMap<File, String> currentFileMap = currentVersion.getFilesMap();
 				ArrayList<File> currentFilesList = currentVersion.getFilesList();
 				ArrayList<File> currentModdedFiles = currentVersion.getModdedFiles();
+				ArrayList<File> currentCopiedFiles = currentVersion.getCopiedFiles();
 
 				for (File file : currentFilesList) {
 					Boolean isCopied = false;
@@ -110,11 +111,13 @@ public class DiffComputer {
 							LibraryVersion compVersion = versionsList.get(compIndex);
 							HashMap<File, String> compFileMap = compVersion.getFilesMap();
 							ArrayList<File> compModdedFiles = compVersion.getModdedFiles();
+							ArrayList<File> compCopiedFiles = compVersion.getCopiedFiles();
 							String compHashCode = compFileMap.get(file);
 	
 							if (compHashCode != null) {
 								if (compHashCode.equals(currentHashCode)) {
 									isCopied = true;
+									compCopiedFiles.add(file);
 									compFileMap.remove(file);
 								} else {
 									isModded = true;
@@ -125,6 +128,7 @@ public class DiffComputer {
 						}
 					}
 					if (isCopied) {
+						currentCopiedFiles.add(file);
 						currentFileMap.remove(file);
 						isCopied = false;
 					}
@@ -169,9 +173,11 @@ public class DiffComputer {
 
 			ArrayList<File> exclusiveFiles = libraryVersion.getExclusiveFiles();
 			ArrayList<File> moddedFiles = libraryVersion.getModdedFiles();
+			ArrayList<File> copiedFiles = libraryVersion.getCopiedFiles();
 
 			Collections.sort(exclusiveFiles);
 			Collections.sort(moddedFiles);
+			Collections.sort(copiedFiles);
 
 			try (BufferedWriter writer = new BufferedWriter(new FileWriter(libDiffFilePath));) {
 				writer.write("Showing diffs for: " + libraryVersion.getVersionName());
@@ -194,6 +200,17 @@ public class DiffComputer {
 				writer.write("====================");
 				writer.newLine();
 				for (File file : moddedFiles) {
+					writer.write(file.toString());
+					writer.newLine();
+				}
+				
+				writer.newLine();
+				writer.newLine();
+				writer.write("Copied files: " + copiedFiles.size() + " files");
+				writer.newLine();
+				writer.write("====================");
+				writer.newLine();
+				for (File file : copiedFiles) {
 					writer.write(file.toString());
 					writer.newLine();
 				}
