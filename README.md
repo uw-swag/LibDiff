@@ -59,6 +59,6 @@ have already been computed. Afterwards, it will continue to run and look for new
 ### NOTES
 The ```diff.txt``` file for any JAR can be found in the directory where the JAR is decompiled to, named after the JAR. This directory exists in the same location as the JAR file.
 
-For example, if we have a library ```"Library1"``` at ```PATH/TO/WHITELIST_LIBRARIES/Library1```, version1.jar of this library will decompile to ``PATH/TO/WHITELIST_LIBRARIES/Library1/version1```, and the diff file for this version will be created at ```PATH/TO/WHITELIST_LIBRARIES/Library1/version1/diff.txt```. This is illustrated in the diagram below:
+For example, if we have a library ```"Library1"``` at ```PATH/TO/WHITELIST_LIBRARIES/Library1```, version1.jar of this library will decompile to ```PATH/TO/WHITELIST_LIBRARIES/Library1/version1```, and the diff file for this version will be created at ```PATH/TO/WHITELIST_LIBRARIES/Library1/version1/diff.txt```. This is illustrated in the diagram below:
 
 ![Decompiled Resources Structure](https://raw.githubusercontent.com/zchi88/LibDiff/master/Decompiled%20Resources%20Structure.png "Decompiled Resources Structure")
