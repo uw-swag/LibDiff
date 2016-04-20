@@ -23,7 +23,7 @@ public class StartupScanner {
 				Path pathToLibrary = library.toPath();
 				AarToJar.convertAarToJar(pathToLibrary);
 				JarDecompiler.decompileAllJars(pathToLibrary);
-				DiffComputer.checkDiff(pathToLibrary);
+				DiffComputer.syncDiffs(pathToLibrary);
 			}
 			System.out.println("Startup scan complete.");
 		} else {

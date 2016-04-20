@@ -37,7 +37,6 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -239,7 +238,7 @@ public class LibraryWatcher {
 		String decompiledFolder = filePath.toString().replace(".jar", "");
 		JarDecompiler.decompileJar(filePath, Paths.get(decompiledFolder));
 		try {
-			DiffComputer.findMissingDiffs(filePath.getParent());
+			DiffComputer.syncDiffs(filePath.getParent());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
