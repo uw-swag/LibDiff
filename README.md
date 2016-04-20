@@ -37,11 +37,14 @@ The easiest way to use this tool is by creating a runnable Jar. To do so:
 
 ## USAGE
 This tool works on a directory which is a collection of libraries - the "Libraries Whitelist". 
-This Whitelist is a collection of library JAR's or AAR's that must be manually collected and copied to the directory.
+This Whitelist is a collection of library JAR's or AAR's that must be manually downloaded (for example from the [maven repository](http://mvnrepository.com/)) and copied to the directory.
+
 When new libraries are added to the directory, the tool will try to compute diffs for the library based on all other versions of it.
 The directory structure of this Libraries Whitelist directory MUST look like the following:
 
 ![Whitelist Directory Structure](https://github.com/zchi88/LibDiff/blob/master/LibDiff%20Structure.png?raw=true "Whitelist Directory Structure")
+
+Note that the tool currently only accepts AAR's and JAR's of COMPILED library code (e.g. ".class" files, not ".java" source files).
 
 To use the tool to maintain the diffs for the Libraries Whitelist:
 
