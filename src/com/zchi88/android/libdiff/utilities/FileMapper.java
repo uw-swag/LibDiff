@@ -66,7 +66,7 @@ public class FileMapper {
 		Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
 			@Override
 			public FileVisitResult visitFile(Path dir, BasicFileAttributes attrs) throws IOException {
-				if (!Files.isDirectory(dir) && !dir.getFileName().toString().equals("diff.txt")) {
+				if (!Files.isDirectory(dir) && !dir.getFileName().toString().endsWith(".txt")) {
 					String checksum = FileMapper.hashFile(dir.toFile(), "MD5");
 					// Get the path to a library's source files relative to its
 					// decompiled folder for easier comparison
@@ -93,7 +93,7 @@ public class FileMapper {
 		Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
 			@Override
 			public FileVisitResult visitFile(Path dir, BasicFileAttributes attrs) throws IOException {
-				if (!Files.isDirectory(dir) && !dir.getFileName().toString().equals("diff.txt")) {
+				if (!Files.isDirectory(dir) && !dir.getFileName().toString().endsWith(".txt")) {
 					filesList.add(dir.toFile());
 				}
 				return FileVisitResult.CONTINUE;

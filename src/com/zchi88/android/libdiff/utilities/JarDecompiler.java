@@ -6,11 +6,11 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.strobel.decompiler.DecompilerDriver;
+import org.benf.cfr.reader.Main;
 
 /**
  * 
- * This jar decompiler is simply using procyon 5.3.0 to decompile java JAR's.
+ * This jar decompiler is simply using cfr_0_115 to decompile java JAR's.
  * Modify this class if you wish to use a different decompiler.
  *
  */
@@ -34,12 +34,12 @@ public class JarDecompiler {
 			public void write(int b) {
 			}
 		});
-		final String[] arg = { jarPath.toString(), "-o", outputPath.toString() };
+		final String[] arg = { jarPath.toString(), "--outputpath", outputPath.toString(), "--silent", "true"};
 
-		// The procyon decompiler prints superfluous decompiling information to
+		// The CFR decompiler prints superfluous decompiling information to
 		// the console which we don't care about. This hides it.
 		System.setOut(hideStream);
-		DecompilerDriver.main(arg);
+		Main.main(arg);
 		System.setOut(showStream);
 		hideStream.close();
 		System.out.println(jarPath + " has been successfully decompiled.");
