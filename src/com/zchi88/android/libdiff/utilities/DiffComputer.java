@@ -230,7 +230,7 @@ public class DiffComputer {
 	 * @throws IOException
 	 */
 	public static void syncDiffs(Path libraryPath) throws IOException {
-		System.out.format("Checking to see if diffs have been computed for all versions of %s...\n", libraryPath);
+		System.out.format("Checking if diffs have been computed for all versions of %s...\n", libraryPath);
 		File[] libraryVersions = libraryPath.toFile().listFiles();
 
 		if (libraryVersions.length > 0) {

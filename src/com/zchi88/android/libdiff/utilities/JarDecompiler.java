@@ -25,7 +25,7 @@ public class JarDecompiler {
 	 *            - the directory where the decompiled contents will be placed
 	 */
 	public static void decompileJar(Path jarPath, Path outputPath) {
-		System.out.println(jarPath + " has not been decompiled. Decompiling now...");
+		System.out.println(jarPath.getFileName() + " has not been decompiled. Decompiling now...");
 		final PrintStream showStream = System.out;
 
 		final PrintStream hideStream = new PrintStream(new OutputStream() {
@@ -51,7 +51,7 @@ public class JarDecompiler {
 	 */
 	public static void decompileAllJars(Path libraryPath) {
 		Boolean isDecompiled = true;
-		System.out.format("Checking to see if all libary JAR's for %s have been decompiled...\n", libraryPath);
+		System.out.format("Checking if all libary JAR's for %s have been decompiled...\n", libraryPath);
 
 		File[] libraryVersions = libraryPath.toFile().listFiles();
 		
