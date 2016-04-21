@@ -20,10 +20,13 @@ public class StartupScanner {
 
 		if (whitelistedLibraries.length > 0) {
 			for (File library : whitelistedLibraries) {
-				Path pathToLibrary = library.toPath();
-				AarToJar.convertAarToJar(pathToLibrary);
-				JarDecompiler.decompileAllJars(pathToLibrary);
-				DiffComputer.syncDiffs(pathToLibrary);
+				if (library.isDirectory()) {
+					Path pathToLibrary = library.toPath();
+					AarToJar.convertAarToJar(pathToLibrary);
+					JarDecompiler.decompileAllJars(pathToLibrary);
+					DiffComputer.syncDiffs(pathToLibrary);
+				}
+
 			}
 			System.out.println("Startup scan complete.");
 		} else {
