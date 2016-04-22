@@ -41,7 +41,7 @@ public class JarDecompiler {
 		Main.main(arg);
 		System.setOut(showStream);
 		hideStream.close();
-		System.out.println(jarPath + " has been successfully decompiled.");
+		System.out.println(jarPath.getFileName() + " has been successfully decompiled.");
 	}
 
 	/**
