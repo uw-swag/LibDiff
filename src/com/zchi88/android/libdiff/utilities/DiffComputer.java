@@ -5,10 +5,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Scanner;
 import java.util.Set;
 
 import com.zchi88.android.libdiff.versionobject.LibraryVersion;
@@ -24,8 +26,9 @@ public class DiffComputer {
 	 * @param libraryPath
 	 * @return True if diffs have been computed for all versions of the library.
 	 *         False otherwise
+	 * @throws IOException 
 	 */
-	private static Boolean isDiffMissing(File[] libraryVersions) {
+	private static Boolean isDiffMissing(File[] libraryVersions) throws IOException {
 		int libCount = 0;
 		int diffCount = 0;
 		for (File libFile : libraryVersions) {
@@ -36,8 +39,11 @@ public class DiffComputer {
 			}
 
 			// Check for number of diff files in that directory.
-			if (libFile.isDirectory() && new File(libFile, "diff.txt").exists()) {
-				diffCount++;
+			File diffFile = new File(libFile, "diff.txt");
+			if (libFile.isDirectory() && diffFile.exists()) {
+				if (isDiffValid(diffFile)) {
+					diffCount++;
+				}
 			}
 		}
 		return (diffCount != libCount);
@@ -214,6 +220,8 @@ public class DiffComputer {
 					writer.write(file.toString());
 					writer.newLine();
 				}
+				writer.newLine();
+				writer.write("=====END OF DIFF=====");
 			} catch (Exception e) {
 				// TODO: handle exception
 			}
@@ -243,5 +251,21 @@ public class DiffComputer {
 			}
 		}
 
+	}
+	
+	/**
+	 * Checks to see if a diff was properly created by looking for the "End of diff" marker in the text file.
+	 * @throws IOException 
+	 */
+	public static Boolean isDiffValid(File diffFile) throws IOException {
+		Scanner scanner = new Scanner(diffFile.toPath());
+	    String nextLine;
+	    while (scanner.hasNextLine()) {
+	    	nextLine = scanner.nextLine();
+	    	if (nextLine.equals("=====END OF DIFF=====")) {
+				return true;
+			}
+	    }
+		return false;
 	}
 }
