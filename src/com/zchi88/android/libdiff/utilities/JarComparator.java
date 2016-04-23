@@ -3,6 +3,7 @@ package com.zchi88.android.libdiff.utilities;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.jar.JarEntry;
@@ -41,7 +42,7 @@ public class JarComparator {
 						sortedVersions.add(libFile);
 					} else {
 						int insertIndex = 0;
-						while (insertIndex < sortedVersions.size() && getReleaseTime(sortedVersions.get(insertIndex)) < getReleaseTime(libFile)) {
+						while (insertIndex < sortedVersions.size() && getReleaseTime(sortedVersions.get(insertIndex)) > getReleaseTime(libFile)) {
 							insertIndex++;
 						}
 						sortedVersions.add(insertIndex, libFile);
@@ -77,5 +78,10 @@ public class JarComparator {
 		}
 		jar.close();
 		return releaseTime;
+	}
+	
+	public static void main(String[] args) throws IOException {
+		Path path = Paths.get("C:\\Users\\zhiha\\Desktop\\LibDetector\\LibrariesWhitelist\\facebook");
+		System.out.println(getVersionOrder(path));
 	}
 }

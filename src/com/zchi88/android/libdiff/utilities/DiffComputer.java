@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -26,7 +27,7 @@ public class DiffComputer {
 	 * @param libraryPath
 	 * @return True if diffs have been computed for all versions of the library.
 	 *         False otherwise
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private static Boolean isDiffMissing(File[] libraryVersions) throws IOException {
 		int libCount = 0;
@@ -52,34 +53,29 @@ public class DiffComputer {
 	/**
 	 * This method re-computes the diffs for all versions of a library.
 	 * 
-	 * @param libraryVersions
+	 * @param versionOrder
 	 *            - list of all the files in a given library
 	 * @throws IOException
 	 */
-	private static void computeDiffs(File[] libraryVersions) throws IOException {
-		// Create an arraylist to temporarily hold the <File, hash code>
-		// key/value pairs for analysis
+	private static void computeDiffs(LinkedList<File> versionOrder) throws IOException {
+		// Create an arraylist to temporarily hold the LibraryVersion objects
+		// for comparison
 		ArrayList<LibraryVersion> versionsList = new ArrayList<LibraryVersion>();
 
 		// Iterate through each file in a given library. If the file is a
 		// directory with a corresponding JAR, we know that it is a directory
 		// containing source code decompiled from that jar.
-		for (File libFile : libraryVersions) {
-			// This checks to see if the file is the folder where a jar has been
-			// decompiled to
-			if (libFile.isDirectory()) {
-				String nameOfFile = libFile.toString();
-				String nameOfJar = nameOfFile.concat(".jar");
-				File jarFile = new File(nameOfJar);
-				// This ensures that there is a jar corresponding to this folder
-				if (jarFile.exists()) {
-					// Create a library version object to capture the properties
-					// of that version
-					LibraryVersion libVersion = new LibraryVersion(libFile.toPath());
-					// Add the library version object to an arraylist for future
-					// computation
-					versionsList.add(libVersion);
-				}
+		for (int i = 0; i < versionOrder.size(); i++) {
+			// Check that both the JAR and its decompiled folder exists
+			File libFile = versionOrder.get(i);
+			Path libPath = Paths.get(libFile.toString().replace(".jar", ""));
+			if (libPath.toFile().exists() && libFile.exists()) {
+				// Create a library version object to capture the properties
+				// of that version
+				LibraryVersion libVersion = new LibraryVersion(libPath, i);
+				// Add the library version object to an arraylist for future
+				// computation
+				versionsList.add(libVersion);
 			}
 		}
 
@@ -119,7 +115,7 @@ public class DiffComputer {
 							ArrayList<File> compModdedFiles = compVersion.getModdedFiles();
 							ArrayList<File> compCopiedFiles = compVersion.getCopiedFiles();
 							String compHashCode = compFileMap.get(file);
-	
+
 							if (compHashCode != null) {
 								if (compHashCode.equals(currentHashCode)) {
 									isCopied = true;
@@ -165,10 +161,9 @@ public class DiffComputer {
 		writeToDiff(versionsList);
 	}
 
-
-
 	/**
-	 * Takes an arraylist of library version objects and writes their diff data to the diff.txt file
+	 * Takes an arraylist of library version objects and writes their diff data
+	 * to the diff.txt file
 	 * 
 	 * @param versionsList
 	 * @throws IOException
@@ -187,6 +182,8 @@ public class DiffComputer {
 
 			try (BufferedWriter writer = new BufferedWriter(new FileWriter(libDiffFilePath));) {
 				writer.write("Showing diffs for: " + libraryVersion.getVersionName());
+				writer.newLine();
+				writer.write("Version Age: " + libraryVersion.getVersionAge());
 				writer.newLine();
 				writer.newLine();
 
@@ -209,7 +206,7 @@ public class DiffComputer {
 					writer.write(file.toString());
 					writer.newLine();
 				}
-				
+
 				writer.newLine();
 				writer.newLine();
 				writer.write("Copied files: " + copiedFiles.size() + " files");
@@ -244,7 +241,8 @@ public class DiffComputer {
 		if (libraryVersions.length > 0) {
 			if (isDiffMissing(libraryVersions)) {
 				System.out.format("Diffs for '%s' appear to be out of date. Recomputing diffs...\n", libraryPath);
-				computeDiffs(libraryVersions);
+				LinkedList<File> versionOrder = JarComparator.getVersionOrder(libraryPath);
+				computeDiffs(versionOrder);
 				System.out.format("Diffs for '%s' are now up to date.\n\n", libraryPath);
 			} else {
 				System.out.println("Diffs for " + libraryPath + " are up to date.\n");
@@ -252,20 +250,22 @@ public class DiffComputer {
 		}
 
 	}
-	
+
 	/**
-	 * Checks to see if a diff was properly created by looking for the "End of diff" marker in the text file.
-	 * @throws IOException 
+	 * Checks to see if a diff was properly created by looking for the
+	 * "End of diff" marker in the text file.
+	 * 
+	 * @throws IOException
 	 */
 	public static Boolean isDiffValid(File diffFile) throws IOException {
 		Scanner scanner = new Scanner(diffFile.toPath());
-	    String nextLine;
-	    while (scanner.hasNextLine()) {
-	    	nextLine = scanner.nextLine();
-	    	if (nextLine.equals("=====END OF DIFF=====")) {
+		String nextLine;
+		while (scanner.hasNextLine()) {
+			nextLine = scanner.nextLine();
+			if (nextLine.equals("=====END OF DIFF=====")) {
 				return true;
 			}
-	    }
+		}
 		return false;
 	}
 }

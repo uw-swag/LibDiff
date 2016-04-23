@@ -21,9 +21,10 @@ import com.zchi88.android.libdiff.utilities.FileMapper;
  *
  */
 public class LibraryVersion {
-	public LibraryVersion(final Path versionPath) throws IOException {
+	public LibraryVersion(final Path versionPath, final int versionAge) throws IOException {
 		this.versionPath = versionPath;
 		this.versionName = versionPath.getFileName();
+		this.versionAge = versionAge;
 		this.filesList = FileMapper.getFileList(versionPath);
 		this.exclusiveFiles = new ArrayList<File>();
 		this.moddedFiles = new ArrayList<File>();
@@ -54,6 +55,9 @@ public class LibraryVersion {
 	// The path to the folder holding the decompiled version source code
 	private final Path versionPath;
 
+	// The "age" of the version. For example, 0 would mean it is the most recent. 2 would mean it is 2 versions behind.
+	private final int versionAge;
+	
 	// A mapping of all source files in the folder as <File, String> pairs where
 	// the string is the hash code of the file
 	private final HashMap<File, String> filesMap;
@@ -77,6 +81,10 @@ public class LibraryVersion {
 
 	public Path getVersionPath() {
 		return versionPath;
+	}
+	
+	public int getVersionAge() {
+		return versionAge;
 	}
 
 	public HashMap<File, String> getFilesMap() {
