@@ -106,4 +106,31 @@ public class LibraryVersion {
 	public ArrayList<File> getCopiedFiles() {
 		return copiedFiles;
 	}
+	
+	public String getHashValue(File file){
+		String hashValue = this.filesMap.get(file);
+		return hashValue;
+	}
+	
+	public void appendToModdedList(File file){
+		if (!this.moddedFiles.contains(file)) {
+			this.moddedFiles.add(file);
+		}
+	}
+	
+	public void appendToCopiedList(File file){
+		if (!this.copiedFiles.contains(file)) {
+			this.copiedFiles.add(file);
+		}
+	}
+	
+	public void appendToExclusiveList(File file){
+		if (!this.exclusiveFiles.contains(file)) {
+			this.exclusiveFiles.add(file);
+		}
+	}
+
+	public void removeFromMap(File file){
+		this.filesMap.remove(file);
+	}
 }
