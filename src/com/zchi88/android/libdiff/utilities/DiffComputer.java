@@ -98,14 +98,6 @@ public class DiffComputer {
 			String compHashCode;
 			ArrayList<File> currentFilesList;
 
-			File cFile = new File("org\\apache\\http\\client\\methods\\HttpRequestWrapper.java");
-			System.err.println(cFile);
-			for (int currentIndex = 0; currentIndex < versionsList.size(); currentIndex++) {
-				currentVersion = versionsList.get(currentIndex);
-
-				System.out.println(currentVersion.getVersionName() + " : " + currentVersion.getFilesMap().get(cFile));
-			}
-
 			// Filter out the exclusive files
 			for (int currentIndex = 0; currentIndex < versionsList.size(); currentIndex++) {
 				currentVersion = versionsList.get(currentIndex);
