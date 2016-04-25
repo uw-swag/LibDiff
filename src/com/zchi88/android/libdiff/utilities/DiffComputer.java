@@ -8,11 +8,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Scanner;
-import java.util.Set;
 
 import com.zchi88.android.libdiff.versionobject.LibraryVersion;
 
@@ -83,77 +80,97 @@ public class DiffComputer {
 		// version exclusive
 		if (versionsList.size() == 1) {
 			LibraryVersion libVersion = versionsList.get(0);
-			ArrayList<File> exclusiveFiles = libVersion.getExclusiveFiles();
 			for (File libFile : libVersion.getFilesMap().keySet()) {
-				exclusiveFiles.add(libFile);
+				libVersion.appendToExclusiveList(libFile);
 			}
 		} else {
 			// For each version's file mapping, compare the mapping to the other
 			// versions' files maps. If a file does not exist in any other
 			// version, it is version exclusive. If it does exist in other
-			// versions but theirhash codes never match, then it exists as a
+			// versions but their hash codes never match, then it exists as a
 			// uniquely modified file.
 
 			// Iterate through the file maps and populate the modified files
 			// list for each library version
+			LibraryVersion currentVersion;
+			LibraryVersion compVersion;
+			String currentHashCode;
+			String compHashCode;
+			ArrayList<File> currentFilesList;
+
+			File cFile = new File("org\\apache\\http\\client\\methods\\HttpRequestWrapper.java");
+			System.err.println(cFile);
 			for (int currentIndex = 0; currentIndex < versionsList.size(); currentIndex++) {
-				LibraryVersion currentVersion = versionsList.get(currentIndex);
-				HashMap<File, String> currentFileMap = currentVersion.getFilesMap();
-				ArrayList<File> currentFilesList = currentVersion.getFilesList();
-				ArrayList<File> currentModdedFiles = currentVersion.getModdedFiles();
-				ArrayList<File> currentCopiedFiles = currentVersion.getCopiedFiles();
+				currentVersion = versionsList.get(currentIndex);
+
+				System.out.println(currentVersion.getVersionName() + " : " + currentVersion.getFilesMap().get(cFile));
+			}
+
+			// Filter out the exclusive files
+			for (int currentIndex = 0; currentIndex < versionsList.size(); currentIndex++) {
+				currentVersion = versionsList.get(currentIndex);
+				currentFilesList = currentVersion.getFilesList();
+
+				for (File file : currentFilesList) {
+					Boolean isExclusive = true;
+					currentHashCode = currentVersion.getHashValue(file);
+					if (currentHashCode != null) {
+						for (int compIndex = 0; compIndex < versionsList.size(); compIndex++) {
+							if (compIndex != currentIndex) {
+								compVersion = versionsList.get(compIndex);
+								compHashCode = compVersion.getHashValue(file);
+								if (compHashCode != null) {
+									isExclusive = false;
+								}
+							}
+						}
+					}
+					if (isExclusive) {
+						currentVersion.appendToExclusiveList(file);
+						currentVersion.removeFromMap(file);
+						isExclusive = true;
+					}
+				}
+			}
+
+			// Filter out the copied files
+			for (int currentIndex = 0; currentIndex < versionsList.size(); currentIndex++) {
+				currentVersion = versionsList.get(currentIndex);
+				currentFilesList = currentVersion.getFilesList();
 
 				for (File file : currentFilesList) {
 					Boolean isCopied = false;
-					Boolean isModded = false;
-					String currentHashCode = currentFileMap.get(file);
+					currentHashCode = currentVersion.getHashValue(file);
 
 					if (currentHashCode != null) {
 						for (int compIndex = (currentIndex + 1); compIndex < versionsList.size(); compIndex++) {
-							LibraryVersion compVersion = versionsList.get(compIndex);
-							HashMap<File, String> compFileMap = compVersion.getFilesMap();
-							ArrayList<File> compModdedFiles = compVersion.getModdedFiles();
-							ArrayList<File> compCopiedFiles = compVersion.getCopiedFiles();
-							String compHashCode = compFileMap.get(file);
+							compVersion = versionsList.get(compIndex);
+							compHashCode = compVersion.getHashValue(file);
 
 							if (compHashCode != null) {
 								if (compHashCode.equals(currentHashCode)) {
 									isCopied = true;
-									compCopiedFiles.add(file);
-									compFileMap.remove(file);
-								} else {
-									isModded = true;
-									compModdedFiles.add(file);
-									compFileMap.remove(file);
+									compVersion.appendToCopiedList(file);
+									compVersion.removeFromMap(file);
 								}
 							}
 						}
 					}
 					if (isCopied) {
-						currentCopiedFiles.add(file);
-						currentFileMap.remove(file);
+						currentVersion.appendToCopiedList(file);
+						currentVersion.removeFromMap(file);
 						isCopied = false;
-					}
-					if (isModded) {
-						currentModdedFiles.add(file);
-						currentFileMap.remove(file);
-						isModded = false;
 					}
 				}
 			}
 
-			// Anything still left in the hash map should be version exclusive
-			// files
+			// Anything still left in the hash map should be unique file
+			// mods
 			for (int currentIndex = 0; currentIndex < versionsList.size(); currentIndex++) {
-				LibraryVersion currentVersion = versionsList.get(currentIndex);
-				HashMap<File, String> currentFileMap = currentVersion.getFilesMap();
-				Set<File> filesInMap = currentFileMap.keySet();
-				HashSet<File> deepCopyMap = new HashSet<File>(filesInMap);
-				ArrayList<File> exclusiveFiles = currentVersion.getExclusiveFiles();
+				currentVersion = versionsList.get(currentIndex);
+				for (File file : currentVersion.getFilesMap().keySet()) {
 
-				for (File file : deepCopyMap) {
-					exclusiveFiles.add(file);
-					currentFileMap.remove(file);
+					currentVersion.appendToModdedList(file);
 				}
 			}
 		}
