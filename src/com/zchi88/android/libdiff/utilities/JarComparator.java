@@ -3,7 +3,6 @@ package com.zchi88.android.libdiff.utilities;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.jar.JarEntry;
@@ -19,7 +18,7 @@ public class JarComparator {
 	 *            - the library file
 	 * 
 	 * @return A linked list of the different versions of the library as
-	 *         Files sorted by their date of release.
+	 *         Files sorted by their date of release. The most recent version is in the first index, while the oldest version is last.
 	 * 
 	 * @throws IOException
 	 *
@@ -78,10 +77,5 @@ public class JarComparator {
 		}
 		jar.close();
 		return releaseTime;
-	}
-	
-	public static void main(String[] args) throws IOException {
-		Path path = Paths.get("C:\\Users\\zhiha\\Desktop\\LibDetector\\LibrariesWhitelist\\facebook");
-		System.out.println(getVersionOrder(path));
 	}
 }

@@ -2,16 +2,16 @@ package com.zchi88.android.libdiff.utilities;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Scanner;
-
-import com.zchi88.android.libdiff.versionobject.LibraryVersion;
 
 /**
  * The purpose of this class to to compute diffs between successive versions of
@@ -55,182 +55,157 @@ public class DiffComputer {
 	 * @throws IOException
 	 */
 	private static void computeDiffs(LinkedList<File> versionOrder) throws IOException {
-		// Create an arraylist to temporarily hold the LibraryVersion objects
-		// for comparison
-		ArrayList<LibraryVersion> versionsList = new ArrayList<LibraryVersion>();
-
-		// Iterate through each file in a given library. If the file is a
-		// directory with a corresponding JAR, we know that it is a directory
-		// containing source code decompiled from that jar.
-		for (int i = 0; i < versionOrder.size(); i++) {
-			// Check that both the JAR and its decompiled folder exists
-			File libFile = versionOrder.get(i);
-			Path libPath = Paths.get(libFile.toString().replace(".jar", ""));
-			if (libPath.toFile().exists() && libFile.exists()) {
-				// Create a library version object to capture the properties
-				// of that version
-				LibraryVersion libVersion = new LibraryVersion(libPath, i);
-				// Add the library version object to an arraylist for future
-				// computation
-				versionsList.add(libVersion);
+		// Iterate through the list of versions in order, so that
+		// the most recent versions that are missing diffs are found first
+		// and re-calculated if missing.
+		for (int versionAge = 0; versionAge < versionOrder.size(); versionAge++) {
+			// If the diff.txt file for the file in the sorted versions list
+			// is missing, create it.
+			File currentVersion = versionOrder.get(versionAge);
+			File currentDiffFolder = new File(currentVersion.toString().replace(".jar", ""));
+			File previousDiffFolder;
+			if ((versionAge + 1) >= versionOrder.size()) {
+				previousDiffFolder = null;
+			} else {
+				previousDiffFolder = new File(versionOrder.get(versionAge + 1).toString().replace(".jar", ""));
 			}
+
+			constructDiff(previousDiffFolder, currentDiffFolder, versionAge);
 		}
-
-		// If there is only one version of a library, then all its files must be
-		// version exclusive
-		if (versionsList.size() == 1) {
-			LibraryVersion libVersion = versionsList.get(0);
-			for (File libFile : libVersion.getFilesMap().keySet()) {
-				libVersion.appendToExclusiveList(libFile);
-			}
-		} else {
-			// For each version's file mapping, compare the mapping to the other
-			// versions' files maps. If a file does not exist in any other
-			// version, it is version exclusive. If it does exist in other
-			// versions but their hash codes never match, then it exists as a
-			// uniquely modified file.
-
-			// Iterate through the file maps and populate the modified files
-			// list for each library version
-			LibraryVersion currentVersion;
-			LibraryVersion compVersion;
-			String currentHashCode;
-			String compHashCode;
-			ArrayList<File> currentFilesList;
-
-			// Filter out the exclusive files
-			for (int currentIndex = 0; currentIndex < versionsList.size(); currentIndex++) {
-				currentVersion = versionsList.get(currentIndex);
-				currentFilesList = currentVersion.getFilesList();
-
-				for (File file : currentFilesList) {
-					Boolean isExclusive = true;
-					currentHashCode = currentVersion.getHashValue(file);
-					if (currentHashCode != null) {
-						for (int compIndex = 0; compIndex < versionsList.size(); compIndex++) {
-							if (compIndex != currentIndex) {
-								compVersion = versionsList.get(compIndex);
-								compHashCode = compVersion.getHashValue(file);
-								if (compHashCode != null) {
-									isExclusive = false;
-								}
-							}
-						}
-					}
-					if (isExclusive) {
-						currentVersion.appendToExclusiveList(file);
-						currentVersion.removeFromMap(file);
-						isExclusive = true;
-					}
-				}
-			}
-
-			// Filter out the copied files
-			for (int currentIndex = 0; currentIndex < versionsList.size(); currentIndex++) {
-				currentVersion = versionsList.get(currentIndex);
-				currentFilesList = currentVersion.getFilesList();
-
-				for (File file : currentFilesList) {
-					Boolean isCopied = false;
-					currentHashCode = currentVersion.getHashValue(file);
-
-					if (currentHashCode != null) {
-						for (int compIndex = (currentIndex + 1); compIndex < versionsList.size(); compIndex++) {
-							compVersion = versionsList.get(compIndex);
-							compHashCode = compVersion.getHashValue(file);
-
-							if (compHashCode != null) {
-								if (compHashCode.equals(currentHashCode)) {
-									isCopied = true;
-									compVersion.appendToCopiedList(file);
-									compVersion.removeFromMap(file);
-								}
-							}
-						}
-					}
-					if (isCopied) {
-						currentVersion.appendToCopiedList(file);
-						currentVersion.removeFromMap(file);
-						isCopied = false;
-					}
-				}
-			}
-
-			// Anything still left in the hash map should be unique file
-			// mods
-			for (int currentIndex = 0; currentIndex < versionsList.size(); currentIndex++) {
-				currentVersion = versionsList.get(currentIndex);
-				for (File file : currentVersion.getFilesMap().keySet()) {
-
-					currentVersion.appendToModdedList(file);
-				}
-			}
-		}
-
-		writeToDiff(versionsList);
 	}
 
 	/**
-	 * Takes an arraylist of library version objects and writes their diff data
-	 * to the diff.txt file
+	 * Constructs the diffs for a the current version of a library given its
+	 * previous version
 	 * 
-	 * @param versionsList
+	 * @param prevVersion
+	 *            The String of the file path of the previous version of the
+	 *            library
+	 * @param targetVersion
+	 *            The String of the file path the diff must be computed for
 	 * @throws IOException
+	 * @throws FileNotFoundException
 	 */
-	private static void writeToDiff(ArrayList<LibraryVersion> versionsList) {
-		for (LibraryVersion libraryVersion : versionsList) {
-			File libDiffFilePath = new File(libraryVersion.getVersionPath() + java.io.File.separator + "diff.txt");
+	private static void constructDiff(File previousVersion, File currentVersion, int versionAge) throws IOException {
+		Path currentVersionPath = Paths.get(currentVersion.toString().replace(".jar", ""));
+		HashMap<File, String> currentFilesMap = FileMapper.getFileMap(currentVersionPath);
+		ArrayList<File> prevFileList = new ArrayList<File>();
 
-			ArrayList<File> exclusiveFiles = libraryVersion.getExclusiveFiles();
-			ArrayList<File> moddedFiles = libraryVersion.getModdedFiles();
-			ArrayList<File> copiedFiles = libraryVersion.getCopiedFiles();
+		if (previousVersion != null) {
+			Path previousVersionPath = Paths.get(previousVersion.toString().replace(".jar", ""));
+			prevFileList = FileMapper.getFileList(previousVersionPath);
+		}
 
-			Collections.sort(exclusiveFiles);
-			Collections.sort(moddedFiles);
-			Collections.sort(copiedFiles);
+		ArrayList<File> newFiles = new ArrayList<File>();
+		ArrayList<File> modifiedFiles = new ArrayList<File>();
+		ArrayList<File> deletedFiles = new ArrayList<File>();
+		ArrayList<File> copiedFiles = new ArrayList<File>();
 
-			try (BufferedWriter writer = new BufferedWriter(new FileWriter(libDiffFilePath));) {
-				writer.write("Showing diffs for: " + libraryVersion.getVersionName());
-				writer.newLine();
-				writer.write("Version Age: " + libraryVersion.getVersionAge());
-				writer.newLine();
-				writer.newLine();
+		for (File file : prevFileList) {
+			File relativeFilePath = previousVersion.toPath().relativize(file.toPath()).toFile();
 
-				writer.write("Version-exclusive files: " + exclusiveFiles.size() + " files");
-				writer.newLine();
-				writer.write("====================");
-				writer.newLine();
-				for (File file : exclusiveFiles) {
-					writer.write(file.toString());
-					writer.newLine();
+			// Check if a hash value exists for the file in the targetFilesMap.
+			// If
+			// it does not exist, then the file must have been deleted.
+			String currentHash = currentFilesMap.get(relativeFilePath);
+
+			if (currentHash == null) {
+				// If the file does not exist in the current version, it returns
+				// null when we try to find it in the hash map
+				deletedFiles.add(relativeFilePath);
+			} else {
+				String previousHash = FileMapper.hashFile(file, "MD5");
+				// If the checksum exists and is different, then the files have
+				// been modified
+				if (currentHash.equals(previousHash)) {
+					// If their hash values are the same, the files are copies
+					copiedFiles.add(relativeFilePath);
+				} else {
+					// If their hash values exist and are different, they are
+					// modified versions of each other
+					modifiedFiles.add(relativeFilePath);
 				}
-
-				writer.newLine();
-				writer.newLine();
-				writer.write("Uniquely modified files: " + moddedFiles.size() + " files");
-				writer.newLine();
-				writer.write("====================");
-				writer.newLine();
-				for (File file : moddedFiles) {
-					writer.write(file.toString());
-					writer.newLine();
-				}
-
-				writer.newLine();
-				writer.newLine();
-				writer.write("Copied files: " + copiedFiles.size() + " files");
-				writer.newLine();
-				writer.write("====================");
-				writer.newLine();
-				for (File file : copiedFiles) {
-					writer.write(file.toString());
-					writer.newLine();
-				}
-				writer.newLine();
-				writer.write("=====END OF DIFF=====");
-			} catch (Exception e) {
-				// TODO: handle exception
+				// Remove the file from the current file map
+				currentFilesMap.remove(relativeFilePath);
 			}
+		}
+
+		// Any files still left in the target directory's map must be files new
+		// to the current version
+		for (File key : currentFilesMap.keySet()) {
+			newFiles.add(key);
+		}
+
+		File libDiffFilePath = new File(currentVersion + java.io.File.separator + "diff.txt");
+
+		// Sort the list of files
+		Collections.sort(newFiles);
+		Collections.sort(deletedFiles);
+		Collections.sort(modifiedFiles);
+		Collections.sort(copiedFiles);
+
+		// Write the results to diff.txt
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(libDiffFilePath));) {
+			writer.write("Showing Diffs For: " + currentVersion.getName());
+			writer.newLine();
+			writer.write("Version Age: " + versionAge);
+			writer.newLine();
+			if (previousVersion == null) {
+				writer.write("Previous Version Was: N/A");
+			} else {
+				writer.write("Previous Version Was: " + previousVersion.getName());
+			}
+			writer.newLine();
+			writer.newLine();
+			writer.newLine();
+
+			writer.write("New Files: " + newFiles.size() + " files");
+			writer.newLine();
+			writer.write("====================");
+			writer.newLine();
+			for (File file : newFiles) {
+				writer.write(file.toString());
+				writer.newLine();
+			}
+
+			writer.newLine();
+			writer.newLine();
+			writer.write("Modified Files: " + modifiedFiles.size() + " files");
+			writer.newLine();
+			writer.write("====================");
+			writer.newLine();
+			for (File file : modifiedFiles) {
+				writer.write(file.toString());
+				writer.newLine();
+			}
+
+			writer.newLine();
+			writer.newLine();
+			writer.write("Deleted Files: " + deletedFiles.size() + " files");
+			writer.newLine();
+			writer.write("====================");
+			writer.newLine();
+			for (File file : deletedFiles) {
+				writer.write(file.toString());
+				writer.newLine();
+			}
+
+			writer.newLine();
+			writer.newLine();
+			writer.write("Copied Files: " + copiedFiles.size() + " files");
+			writer.newLine();
+			writer.write("====================");
+			writer.newLine();
+			for (File file : copiedFiles) {
+				writer.write(file.toString());
+				writer.newLine();
+			}
+
+			writer.newLine();
+			writer.newLine();
+			writer.write("=====END OF DIFF=====");
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
 	}
 
@@ -261,20 +236,24 @@ public class DiffComputer {
 	}
 
 	/**
-	 * Checks to see if a diff was properly created by looking for the
-	 * "End of diff" marker in the text file.
+	 * Checks to see if a diff was properly created by first ensuring that it
+	 * exists, then looking for the "End of diff" marker in the text file.
 	 * 
 	 * @throws IOException
 	 */
 	public static Boolean isDiffValid(File diffFile) throws IOException {
-		Scanner scanner = new Scanner(diffFile.toPath());
-		String nextLine;
-		while (scanner.hasNextLine()) {
-			nextLine = scanner.nextLine();
-			if (nextLine.equals("=====END OF DIFF=====")) {
-				return true;
+		if (diffFile.exists()) {
+			@SuppressWarnings("resource")
+			Scanner scanner = new Scanner(diffFile.toPath());
+			String nextLine;
+			while (scanner.hasNextLine()) {
+				nextLine = scanner.nextLine();
+				if (nextLine.equals("=====END OF DIFF=====")) {
+					return true;
+				}
 			}
 		}
 		return false;
 	}
+
 }
