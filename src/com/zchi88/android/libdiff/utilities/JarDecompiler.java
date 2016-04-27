@@ -33,7 +33,7 @@ public class JarDecompiler {
 			public void write(int b) {
 			}
 		});
-		final String[] arg = { jarPath.toString(), "--outputpath", outputPath.toString(), "--silent", "true"};
+		final String[] arg = { jarPath.toString(), "--outputpath", outputPath.toString(), "--silent", "true",  "--clobber", "true" };
 
 		// The CFR decompiler prints superfluous decompiling information to
 		// the console which we don't care about. This hides it.
