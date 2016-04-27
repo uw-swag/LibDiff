@@ -54,8 +54,9 @@ public class FileMapper {
 
 	/**
 	 * Given a directory containing files, returns a hash map where the key is
-	 * each file in the directory(and sub-directories) and the value is the
-	 * file's hash code as a string.
+	 * each file in the directory(and sub-directories) relative to its parent 
+	 * path, and the value is the file's hash code as a string. Ignores txt 
+	 * files.
 	 * 
 	 * @param directory
 	 * @return HashMap<File, String>
@@ -82,7 +83,7 @@ public class FileMapper {
 	/**
 	 * Given a directory containing files, returns an arraylist of files that
 	 * are in that directory. This is useful for iterating through the hashmap
-	 * and modifying the hashmap.
+	 * and modifying the hashmap. Ignores txt files.
 	 * 
 	 * @param directory
 	 * @return HashMap<File, String>
