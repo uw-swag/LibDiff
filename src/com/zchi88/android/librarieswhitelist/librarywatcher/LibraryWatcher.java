@@ -53,7 +53,7 @@ import java.util.Map;
 
 import com.zchi88.android.libdiff.utilities.AarToJar;
 import com.zchi88.android.libdiff.utilities.DiffComputer;
-import com.zchi88.android.libdiff.utilities.JarDecompiler;
+import com.zchi88.android.libdiff.utilities.JarExtractor;
 
 /**
  * Watches a directory and all sub-directories for changes to files.
@@ -130,8 +130,9 @@ public class LibraryWatcher {
 	 * you replace an existing jar with a different JAR with the same exact
 	 * name). If you need to "update" a JAR first delete it and then copy the
 	 * alternate version.
+	 * @throws IOException 
 	 */
-	public void processEvents() {
+	public void processEvents() throws IOException {
 		while (true) {
 			// wait for key to be signaled
 			WatchKey key;
@@ -225,7 +226,7 @@ public class LibraryWatcher {
 		}
 	}
 
-	private static void processNewJar(Path filePath) {
+	private static void processNewJar(Path filePath) throws IOException {
 		try {
 			// Give the machine some time to finish extracting the jar before
 			// attempting to decompile it
@@ -235,8 +236,7 @@ public class LibraryWatcher {
 			e.printStackTrace();
 		}
 
-		String decompiledFolder = filePath.toString().replace(".jar", "");
-		JarDecompiler.decompileJar(filePath, Paths.get(decompiledFolder));
+		JarExtractor.extractByteCode(filePath);
 		try {
 			DiffComputer.syncDiffs(filePath.getParent());
 		} catch (IOException e) {

@@ -22,7 +22,7 @@ public class StartupScanner {
 				if (library.isDirectory()) {
 					Path pathToLibrary = library.toPath();
 					AarToJar.convertAarToJar(pathToLibrary);
-					JarDecompiler.decompileAllJars(pathToLibrary);
+					JarExtractor.extractAllJars(pathToLibrary);
 					DiffComputer.syncDiffs(pathToLibrary);
 				}
 
