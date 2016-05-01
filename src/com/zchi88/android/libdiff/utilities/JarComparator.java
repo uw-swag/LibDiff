@@ -17,8 +17,9 @@ public class JarComparator {
 	 * @param library
 	 *            - the library file
 	 * 
-	 * @return A linked list of the different versions of the library as
-	 *         Files sorted by their date of release. The most recent version is in the first index, while the oldest version is last.
+	 * @return A linked list of the different versions of the library as Files
+	 *         sorted by their date of release. The most recent version is in
+	 *         the first index, while the oldest version is last.
 	 * 
 	 * @throws IOException
 	 *
@@ -41,7 +42,8 @@ public class JarComparator {
 						sortedVersions.add(libFile);
 					} else {
 						int insertIndex = 0;
-						while (insertIndex < sortedVersions.size() && getReleaseTime(sortedVersions.get(insertIndex)) > getReleaseTime(libFile)) {
+						while (insertIndex < sortedVersions.size()
+								&& getReleaseTime(sortedVersions.get(insertIndex)) > getReleaseTime(libFile)) {
 							insertIndex++;
 						}
 						sortedVersions.add(insertIndex, libFile);
