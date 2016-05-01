@@ -1,5 +1,5 @@
 # LibDiff
-A tool for computing and maintaining version differences(diffs) in Android libraries. The diff is a version-specific "signature" which describes the class files that are unique(either new or modified) to the version of a library, as well as class files that have likely been copied(ie not changed in one or more versions).
+A tool for computing and maintaining version differences(diffs) in Android libraries. The diff is a version-specific "signature" which describes the class files that are unique(either new or modified) to the version of a library, as well as class files that have likely been copied(ie not changed in one or more versions) or deleted.
 
 
 
