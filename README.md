@@ -64,3 +64,5 @@ The ```diff.txt``` file for any JAR can be found in the directory where the JAR'
 For example, if we have a library ```"Library1"``` at ```PATH/TO/WHITELIST_LIBRARIES/Library1```, version1.jar of this library will extract to ```PATH/TO/WHITELIST_LIBRARIES/Library1/version1```, and the diff file for this version will be created at ```PATH/TO/WHITELIST_LIBRARIES/Library1/version1/diff.txt```. This is illustrated in the diagram below:
 
 ![Extracted Resources Structure](https://raw.githubusercontent.com/zchi88/LibDiff/master/Extracted%20Resources%20Structure.png "Extracted Resources Structure")
+
+Currently, the JAR files must not be deleted for the diff computation to work because version sequencing information is extracted from the JAR's release dates. Without knowledge of this release sequence, the tool cannot compute version-to-version differences.
