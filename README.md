@@ -1,11 +1,10 @@
 # LibDiff
-A tool for computing and maintaining version diffences(diffs) in Android libraries. The diff is a version-specific "signature" which describes the files that are unique(either new or modified) to the version of a library, as well as files that have likely been copied(ie not changed in one or more versions).
+A tool for computing and maintaining version differences(diffs) in Android libraries. The diff is a version-specific "signature" which describes the class files that are unique(either new or modified) to the version of a library, as well as class files that have likely been copied(ie not changed in one or more versions).
 
 
 
 ## DEPENDENCIES
 - Java 1.7+
-- CFR_0_115 (another java decompiler)
 
 
 ## GET THE TOOL
@@ -60,8 +59,8 @@ To use the tool to maintain the diffs for the Libraries Whitelist:
 have already been computed. Afterwards, it will continue to run and look for new libraries being added to the whitelist.
 
 ### NOTES
-The ```diff.txt``` file for any JAR can be found in the directory where the JAR is decompiled to, named after the JAR. This directory exists in the same location as the JAR file.
+The ```diff.txt``` file for any JAR can be found in the directory where the JAR's class files are extracted to, named after the JAR. This directory exists in the same location as the JAR file.
 
-For example, if we have a library ```"Library1"``` at ```PATH/TO/WHITELIST_LIBRARIES/Library1```, version1.jar of this library will decompile to ```PATH/TO/WHITELIST_LIBRARIES/Library1/version1```, and the diff file for this version will be created at ```PATH/TO/WHITELIST_LIBRARIES/Library1/version1/diff.txt```. This is illustrated in the diagram below:
+For example, if we have a library ```"Library1"``` at ```PATH/TO/WHITELIST_LIBRARIES/Library1```, version1.jar of this library will extract to ```PATH/TO/WHITELIST_LIBRARIES/Library1/version1```, and the diff file for this version will be created at ```PATH/TO/WHITELIST_LIBRARIES/Library1/version1/diff.txt```. This is illustrated in the diagram below:
 
-![Decompiled Resources Structure](https://raw.githubusercontent.com/zchi88/LibDiff/master/Decompiled%20Resources%20Structure.png "Decompiled Resources Structure")
+![Extracted Resources Structure](https://raw.githubusercontent.com/zchi88/LibDiff/master/Extracted%20Resources%20Structure.png "Extracted Resources Structure")
