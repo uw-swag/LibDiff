@@ -27,24 +27,21 @@ public class DiffComputer {
 	 * @throws IOException
 	 */
 	private static Boolean isDiffMissing(File[] libraryVersions) throws IOException {
-		int libCount = 0;
-		int diffCount = 0;
 		for (File libFile : libraryVersions) {
 			String nameOfLib = libFile.toString();
-			// Check for number of jar files in the library
+			// Check if each jar has a diff file created for it
 			if (nameOfLib.endsWith(".jar")) {
-				libCount++;
-			}
-
-			// Check for number of diff files in that directory.
-			File diffFile = new File(libFile, "diff.txt");
-			if (libFile.isDirectory() && diffFile.exists()) {
-				if (isDiffValid(diffFile)) {
-					diffCount++;
+				File diffFile = new File(nameOfLib.replace(".jar", ""), "diff.txt");
+				if (!diffFile.exists()) {
+					return true;
+				}
+	
+				if (!isDiffValid(diffFile)) {
+					return true;
 				}
 			}
 		}
-		return (diffCount != libCount);
+		return false;
 	}
 
 	/**
@@ -227,9 +224,11 @@ public class DiffComputer {
 				System.out.format("Diffs for '%s' appear to be out of date. Recomputing diffs...\n", libraryPath);
 				LinkedList<File> versionOrder = JarComparator.getVersionOrder(libraryPath);
 				computeDiffs(versionOrder);
-				System.out.format("Diffs for '%s' are now up to date.\n\n", libraryPath);
+				System.out.format("Diffs for '%s' are now up to date.\n", libraryPath);
+				System.out.println("==========\n");
 			} else {
-				System.out.println("Diffs for " + libraryPath + " are up to date.\n");
+				System.out.println("Diffs for " + libraryPath + " are up to date.");
+				System.out.println("==========\n");
 			}
 		}
 
