@@ -55,7 +55,7 @@ To use the tool to maintain the diffs for the Libraries Whitelist:
 	java -jar LibDiffTool.jar PATH/TO/WHITELIST_LIBRARIES
 	```
 
-4. Thats it! The tool will perform a startup scan upon starting up to make sure that diffs for libraries that are already present
+4. That's it! The tool will perform a startup scan upon starting up to make sure that diffs for libraries that are already present
 have already been computed. Afterwards, it will continue to run and look for new libraries being added to the whitelist.
 
 ### NOTES
