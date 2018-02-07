@@ -21,19 +21,30 @@ public class Main {
 	 * Display correct usage information for this tool.
 	 */
 	private static void showHowToUse() {
-		System.err.println("Error. One argument(the path to the whitelist library) is expected. Example:");
+		System.err.println("Error. One argument(the path to the whitelist library) is expected.");
+		System.err.println("Usage: java -jar AndroidLibDiff.jar [path] [number of threads (optional)]");
+		System.err.println("Examples:");
 		System.err.println("java -jar AndroidLibDiff.jar PATH/TO/LIBRARIES/DIRECTORY");
+		System.err.println("java -jar AndroidLibDiff.jar PATH/TO/LIBRARIES/DIRECTORY 8");
 		System.exit(-1);
 	}
 
 	public static void main(String[] args) throws IOException {
-		if (args.length != 1) {
+		if (args.length < 1) {
 			showHowToUse();
 		}
 
 		String path_name = args[0];
+		
+		int numThreads = Runtime.getRuntime().availableProcessors()*4;
+		try {
+			numThreads = new Integer(args[1]);
+		} catch (Exception e) {
+			// Do nothing if args[1] is not provided, use default
+		}
+		
 		Path libDirectory = Paths.get(path_name);
-
+		
 		// Check to make sure that the directory exists.
 		File[] whitelistedLibraries = libDirectory.toFile().listFiles();
 		if (whitelistedLibraries == null) {
@@ -46,7 +57,7 @@ public class Main {
 
 		// Scan the directory upon startup to see if there are libraries that do
 		// not have diffs computed for them, and compute them if needed.
-		StartupScanner.scan(whitelistedLibraries);
+		StartupScanner.scan(whitelistedLibraries, numThreads);
 
 		// Initialize a new library watcher.
 		LibraryWatcher watcher = new LibraryWatcher(libDirectory);
